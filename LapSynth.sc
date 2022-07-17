@@ -5,7 +5,7 @@ LapSynth {
 	var <>inputprompt;
 	var <>width;
 	var <>height;
-	classvar <>keysdown;
+	var <>keysdown;
 
 	*new {
 		^super.new.init;
@@ -13,7 +13,7 @@ LapSynth {
 
 	init {
 		this.debug("LapSynth");
-		LapSynth.keysdown = List();
+		keysdown = List();
 		this.makeWindow();
 		this.makeTexts();
 		this.setupKeyboardInterface();
@@ -69,22 +69,25 @@ LapSynth {
 
 	makeTexts {
 		this.inputprompt = StaticText(this.win, 800@50);
+		this.inputprompt.stringColor = Color.gray;
 	}
 
 	setupKeyboardInterface {
 		this.win.view.keyDownAction = {|doc, char, mod, unicode, keycode, key|
-			if(LapSynth.keysdown.indexOf(keycode).isNil) {
-				LapSynth.keysdown.add(keycode);
-				LapSynth.keysdown.debug("keys down");
-				this.inputprompt.string = LapSynth.keysdown;
+			if(keysdown.indexOf(keycode).isNil) {
+				keysdown.add(keycode);
+				keysdown.debug("keys down");
+				this.inputprompt.string = keysdown;
 			};
 		};
 		this.win.view.keyUpAction =  {|doc, char, mod, unicode, keycode, key|
-			if(LapSynth.keysdown.indexOf(keycode).isNil.not) {
-				LapSynth.keysdown.remove(keycode);
-				LapSynth.keysdown.debug("keys down");
-				this.inputprompt.string = LapSynth.keysdown;
+			if(keysdown.indexOf(keycode).isNil.not) {
+				keysdown.remove(keycode);
+				keysdown.debug("keys down");
+				this.inputprompt.string = keysdown;
 			}
 		};
 	}
+
+
 }
