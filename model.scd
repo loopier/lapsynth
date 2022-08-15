@@ -9,12 +9,13 @@ specs.rel = ControlSpec(0.0, inf, \lin, 0.0, 1.0, nil, nil);
 specs.feedback = ControlSpec(0.0, inf, \lin, 0.0, 0.0, nil, nil);
 
 "synthdefs/synthdef-oscillators.scd".loadRelative;
-// set an oscillator
-Ndef(\osc, \tri);
-// lfo
-Ndef(\lfo, \lfpulse).set(\freq, 1);
-Ndef(\env, \envperc).set(\gate, Ndef(\lfo));
-Ndef(\out, \vca).set(\in, Ndef(\osc), \amp, Ndef(\env));
+"gui.scd".loadRelative;
+// // set an oscillator
+// Ndef(\osc, \tri);
+// // lfo
+// Ndef(\lfo, \lfpulse).set(\freq, 1);
+// Ndef(\env, \envperc).set(\gate, Ndef(\lfo));
+// Ndef(\out, \vca).set(\in, Ndef(\osc), \amp, Ndef(\env));
 )
 
 Ndef(\env).play
