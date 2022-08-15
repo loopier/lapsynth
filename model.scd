@@ -10,6 +10,7 @@ specs.feedback = ControlSpec(0.0, inf, \lin, 0.0, 0.0, nil, nil);
 
 "synthdefs/synthdef-oscillators.scd".loadRelative;
 "gui.scd".loadRelative;
+// "keymap.scd".loadRelative;
 // // set an oscillator
 // Ndef(\osc, \tri);
 // // lfo
