@@ -24,6 +24,7 @@
 ~view.decorator = FlowLayout(~view.bounds);
 ~view.decorator.gap = 2@2;
 
+"funcs.scd".loadRelative;
 "keymap.scd".loadRelative;
 
 ~cursrc = nil; // current patch source
@@ -82,9 +83,10 @@
 			// patch.add( ~oscs[k] ? ~params[k] ? ~waves[k] );
 
 			case
+			{ ~cmds.includesKey(k) } { ~cmds[k].value }
 			{ ~oscs.includesKey(k) } {
-				if(~keysdown.size == 1) { ~cursrc = ~oscs[k.asSymbol] };
-				if(~keysdown.size == 2) { ~curdest = ~oscs[k.asSymbol] };
+				if(~keysdown.size == 1) { ~cursrc = ~oscs[k] };
+				if(~keysdown.size == 2) { ~curdest = ~oscs[k] };
 			}
 			{ ~params.includesKey(k) } { ~curparam = ~params[k.asSymbol] }
 			{ ~waves.includesKey(k) } { ~curwave = ~waves[k.asSymbol] }
@@ -92,7 +94,8 @@
 		// ~inputprompt.string = patch;
 		// ~inputprompt.string = [~cursrc, ~curparam, ~curwave];
 
-		// ~keysdown.debug("keys down");
+		// ~keysdown.debug(char);
+		// [unicode, keycode, key].debug(char);
 		~srctext.string = "src:\t" + ~cursrc;
 		~desttext.string = "dest:\t" + ~curdest;
 		~paramtext.string = "param:\t" + ~curparam;
