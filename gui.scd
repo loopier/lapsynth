@@ -12,6 +12,9 @@
 ~wavetext = StaticText(~win, Rect(4, ~height - (35 * 2),800,50));
 ~valuextext = StaticText(~win, Rect(4, ~height - (35 * 7),800,50));
 ~valueytext = StaticText(~win, Rect(4, ~height - (35 * 6),800,50));
+~srcmenu = EZPopUpMenu(~win, Rect(0, 0, 230, 22), "src", ~modules.values.asArray.sort);
+~destmenu= EZPopUpMenu(~win, Rect(0, 22, 230, 22), "dest", ~modules.values.asArray.sort);
+~paramsmenu= EZPopUpMenu(~win, Rect(0, 44, 230, 22), "params", ~params.values.asArray.sort);
 ~keysdown = List();
 ~keycodes = Dictionary(); // easy map input to keydict
 
@@ -31,6 +34,7 @@
 ~curdest = nil; // current patch destination
 ~curparam = nil; // current patch parameter
 ~curwave = nil; // current oscillator waveform
+~curfx = nil; // current effect
 ~curvaluex = 0; // current mouse-controled value
 ~curvaluey = 0; // current mouse-controled value
 
@@ -75,31 +79,34 @@
 		~keysdown.add(key);
 		// ~inputprompt.string = ~keysdown.debug(char);
 		// ~inputprompt.string =
-		// 	~oscs[keycode.asSymbol] ?
+		// 	~modules[keycode.asSymbol] ?
 		// 	~params[keycode.asSymbol] ?
 		// 	~waves[keycode.asSymbol];
 		~keysdown.do{ |k,i|
 			k = k.asSymbol;
-			// patch.add( ~oscs[k] ? ~params[k] ? ~waves[k] );
+			// patch.add( ~modules[k] ? ~params[k] ? ~waves[k] );
 
 			case
 			{ ~cmds.includesKey(k) } { ~cmds[k].value }
-			{ ~oscs.includesKey(k) } {
-				if(~keysdown.size == 1) { ~cursrc = ~oscs[k] };
-				if(~keysdown.size == 2) { ~curdest = ~oscs[k] };
+			{ ~modules.includesKey(k) } {
+				if(~keysdown.size == 1) { ~cursrc = ~modules[k] };
+				if(~keysdown.size == 2) { ~curdest = ~modules[k] };
 			}
-			{ ~params.includesKey(k) } { ~curparam = ~params[k.asSymbol] }
-			{ ~waves.includesKey(k) } { ~curwave = ~waves[k.asSymbol] }
+			{ ~params.includesKey(k) } { ~curparam = ~params[k] }
+			{ ~waves.includesKey(k) } { ~curwave = ~waves[k] }
 		};
 		// ~inputprompt.string = patch;
 		// ~inputprompt.string = [~cursrc, ~curparam, ~curwave];
 
 		// ~keysdown.debug(char);
-		// [unicode, keycode, key].debug(char);
+		[unicode, keycode, key].debug(char);
 		~srctext.string = "src:\t" + ~cursrc;
 		~desttext.string = "dest:\t" + ~curdest;
 		~paramtext.string = "param:\t" + ~curparam;
 		~wavetext.string = "wave:\t" + ~curwave;
+		~srcmenu.value = ~modules.values.asArray.sort.indexOf(~cursrc);
+		~destmenu.value = ~modules.values.asArray.sort.indexOf(~curdest);
+		~paramsmenu.value = ~params.values.asArray.sort.indexOf(~curparam);
 	};
 };
 ~win.view.keyUpAction =  {|doc, char, mod, unicode, keycode, key|
