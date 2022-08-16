@@ -70,8 +70,8 @@
 ~win.view.keyDownAction = {|doc, char, mod, unicode, keycode, key|
 	if(~keysdown.indexOf(keycode).isNil) {
 		var patch = List();
-		~keycodes.put(keycode, char.asSymbol);
-		~keysdown.add(keycode);
+		~keycodes.put(key, char.asSymbol);
+		~keysdown.add(key);
 		// ~inputprompt.string = ~keysdown.debug(char);
 		// ~inputprompt.string =
 		// 	~oscs[keycode.asSymbol] ?
@@ -100,9 +100,9 @@
 	};
 };
 ~win.view.keyUpAction =  {|doc, char, mod, unicode, keycode, key|
-	if(~keysdown.indexOf(keycode).isNil.not) {
-		~keysdown.remove(keycode);
-		~inputprompt.string = ~keysdown;
+	if(~keysdown.indexOf(key).isNil.not) {
+		~keysdown.remove(key);
+		// ~inputprompt.string = ~keysdown;
 		// ~keysdown.debug("keys up");
 	}
 };
