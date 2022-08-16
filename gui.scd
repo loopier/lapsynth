@@ -6,6 +6,10 @@
 ~win = Window.new("LapSynth", Rect(200,200, ~width, ~height));
 ~view = CompositeView.new(~win,800@260);
 ~inputprompt = StaticText(~win, Rect(4, ~height - 35,800,50));
+~srctext = StaticText(~win, Rect(4, ~height - (35 * 5),800,50));
+~desttext = StaticText(~win, Rect(4, ~height - (35 * 4),800,50));
+~paramtext = StaticText(~win, Rect(4, ~height - (35 * 3),800,50));
+~wavetext = StaticText(~win, Rect(4, ~height - (35 * 2),800,50));
 ~keysdown = List();
 ~keycodes = Dictionary(); // easy map input to keydict
 
@@ -20,9 +24,10 @@
 
 "keymap.scd".loadRelative;
 
-~curosc = nil; // current oscillator
-~curparam = nil;
-~curwave = nil;
+~cursrc = nil; // current patch source
+~curdest = nil; // current patch destination
+~curparam = nil; // current patch parameter
+~curwave = nil; // current oscillator waveform
 
 // ~knobs = Array.fill(16, {|i|
 // 	EZKnob(
@@ -73,15 +78,21 @@
 			// patch.add( ~oscs[k] ? ~params[k] ? ~waves[k] );
 
 			case
-			{ ~oscs.includesKey(k) } { ~curosc = ~oscs[k.asSymbol] }
+			{ ~oscs.includesKey(k) } {
+				if(~keysdown.size == 1) { ~cursrc = ~oscs[k.asSymbol] };
+				if(~keysdown.size == 2) { ~curdest = ~oscs[k.asSymbol] };
+			}
 			{ ~params.includesKey(k) } { ~curparam = ~params[k.asSymbol] }
 			{ ~waves.includesKey(k) } { ~curwave = ~waves[k.asSymbol] }
 		};
 		// ~inputprompt.string = patch;
-		// ~inputprompt.string = [~curosc, ~curparam, ~curwave];
+		// ~inputprompt.string = [~cursrc, ~curparam, ~curwave];
 
 		// ~keysdown.debug("keys down");
-
+		~srctext.string = "src:\t" + ~cursrc;
+		~desttext.string = "dest:\t" + ~curdest;
+		~paramtext.string = "param:\t" + ~curparam;
+		~wavetext.string = "wave:\t" + ~curwave;
 	};
 };
 ~win.view.keyUpAction =  {|doc, char, mod, unicode, keycode, key|
@@ -92,16 +103,23 @@
 	}
 };
 
+// with mouse button pressed
 // ~win.view.mouseMoveAction = { | view, x, y |
 // 	y.debug(x);
 // };
 
-~win.view.mouseOverAction = { | view, x, y |
-	y.debug(x);
-	~inputprompt.string = "%.set('%', %)".format(~curosc, ~curparam, x);
-};
+// mouse over gui
+// ~win.view.mouseOverAction = { | view, x, y |
+// 	y.debug(x);
+// 	~inputprompt.string = "%.set('%', %)".format(~cursrc, ~curparam, x);
+// };
 
 ~inputprompt.stringColor = Color.gray;
+~srctext.stringColor = Color.gray;
+~desttext.stringColor = Color.gray;
+~paramtext.stringColor = Color.gray;
+~wavetext.stringColor = Color.gray;
+~srctext.string = "alo";
 )
 "0x27".hexToInt
 27.asHexString.hexToInt
