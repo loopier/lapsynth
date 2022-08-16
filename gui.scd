@@ -10,6 +10,8 @@
 ~desttext = StaticText(~win, Rect(4, ~height - (35 * 4),800,50));
 ~paramtext = StaticText(~win, Rect(4, ~height - (35 * 3),800,50));
 ~wavetext = StaticText(~win, Rect(4, ~height - (35 * 2),800,50));
+~valuextext = StaticText(~win, Rect(4, ~height - (35 * 7),800,50));
+~valueytext = StaticText(~win, Rect(4, ~height - (35 * 6),800,50));
 ~keysdown = List();
 ~keycodes = Dictionary(); // easy map input to keydict
 
@@ -28,6 +30,8 @@
 ~curdest = nil; // current patch destination
 ~curparam = nil; // current patch parameter
 ~curwave = nil; // current oscillator waveform
+~curvaluex = 0; // current mouse-controled value
+~curvaluey = 0; // current mouse-controled value
 
 // ~knobs = Array.fill(16, {|i|
 // 	EZKnob(
@@ -114,12 +118,25 @@
 // 	~inputprompt.string = "%.set('%', %)".format(~cursrc, ~curparam, x);
 // };
 
+// mouse wheel
+~win.view.mouseWheelAction = { | view, x, y, mods, dx, dy |
+	[x,y,mods, dx,dy].debug;
+	if (dx > 0) { ~curvaluex = ~curvaluex + 1 };
+	if (dx < 0) { ~curvaluex = ~curvaluex - 1 };
+	if (dy > 0) { ~curvaluey = ~curvaluey + 1 };
+	if (dy < 0) { ~curvaluey = ~curvaluey - 1 };
+	~valuextext.string = "value x:\t" + ~curvaluex;
+	~valueytext.string = "value y:\t" + ~curvaluey;
+	// ~inputprompt.string = "%.set('%', %)".format(~cursrc, ~curparam, x);
+};
+
 ~inputprompt.stringColor = Color.gray;
 ~srctext.stringColor = Color.gray;
 ~desttext.stringColor = Color.gray;
 ~paramtext.stringColor = Color.gray;
 ~wavetext.stringColor = Color.gray;
-~srctext.string = "alo";
+~valuextext.stringColor = Color.gray;
+~valueytext.stringColor = Color.gray;
 )
 "0x27".hexToInt
 27.asHexString.hexToInt
