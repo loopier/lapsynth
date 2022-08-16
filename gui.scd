@@ -14,7 +14,7 @@
 ~valueytext = StaticText(~win, Rect(4, ~height - (35 * 6),800,50));
 ~srcmenu = EZPopUpMenu(~win, Rect(0, 0, 230, 22), "src", ~modules.values.asArray.sort);
 ~destmenu= EZPopUpMenu(~win, Rect(0, 22, 230, 22), "dest", ~modules.values.asArray.sort);
-~paramsmenu= EZPopUpMenu(~win, Rect(0, 44, 230, 22), "params", ~params.values.asArray.sort);
+~paramsmenu= EZPopUpMenu(~win, Rect(0, 44, 230, 22), "params", ~params.values.asArray.sort); //.enabled_(false);
 ~keysdown = List();
 ~keycodes = Dictionary(); // easy map input to keydict
 
@@ -27,12 +27,14 @@
 ~view.decorator = FlowLayout(~view.bounds);
 ~view.decorator.gap = 2@2;
 
+"synthdefs/synthdef-oscillators.scd".loadRelative;
 "funcs.scd".loadRelative;
 "keymap.scd".loadRelative;
 
 ~cursrc = nil; // current patch source
 ~curdest = nil; // current patch destination
-~curparam = nil; // current patch parameter
+~curparams = Dictionary(); // current patch parameter list
+~curparam = nil; // active patch parameter
 ~curwave = nil; // current oscillator waveform
 ~curfx = nil; // current effect
 ~curvaluex = 0; // current mouse-controled value
@@ -86,29 +88,61 @@
 			k = k.asSymbol;
 			// patch.add( ~modules[k] ? ~params[k] ? ~waves[k] );
 
-			case
-			{ ~cmds.includesKey(k) } { ~cmds[k].value }
-			{ ~modules.includesKey(k) } {
-				if(~keysdown.size == 1) { ~cursrc = ~modules[k] };
-				if(~keysdown.size == 2) { ~curdest = ~modules[k] };
-			}
-			{ ~params.includesKey(k) } { ~curparam = ~params[k] }
-			{ ~waves.includesKey(k) } { ~curwave = ~waves[k] }
+			// case
+			// { ~cmds.includesKey(k) } { ~cmds[k].value }
+			// { ~modules.includesKey(k) } {
+			// 	if(~keysdown.size == 1) {
+			// 		~cursrc = ~modules[k];
+			// 	};
+			// 	if(~keysdown.size == 2) { ~curdest = ~modules[k] };
+			// }
+			// { ~params.includesKey(k) } { ~curparam = ~params[k] }
+			// { ~waves.includesKey(k) } { ~curwave = ~waves[k] }
+
+			if (~keysdown.size == 1) {
+				case
+				{ ~cmds.includesKey(k) } 	{ ~cmds[k].value }
+				{ ~modules.includesKey(k) } { ~cursrc = ~modules[k] }
+				{ ~params.includesKey(k) }	{ ~curparam = ~params[k] }
+				{ ~waves.includesKey(k) } 	{ ~curwave = ~waves[k] }
+			};
+
+			if (~keysdown.size == 2) {
+				case
+				{ ~modules.includesKey(k) }	{
+					~curdest = ~modules[k];
+					// patch src to dest
+				}
+				{ ~params.includesKey(k) }	{
+					~curparam = ~params[k];
+					// set param for src ndef
+				}
+				{ ~waves.includesKey(k) } 	{
+					~curwave = ~waves[k];
+					// set source for src ndef
+					~setsrc.value( ~cursrc, ~curwave );
+					// ~getparams.value(~cursrc);
+				}
+			};
 		};
 		// ~inputprompt.string = patch;
 		// ~inputprompt.string = [~cursrc, ~curparam, ~curwave];
 
 		// ~keysdown.debug(char);
-		[unicode, keycode, key].debug(char);
+		// [unicode, keycode, key].debug(char);
 		~srctext.string = "src:\t" + ~cursrc;
 		~desttext.string = "dest:\t" + ~curdest;
 		~paramtext.string = "param:\t" + ~curparam;
 		~wavetext.string = "wave:\t" + ~curwave;
 		~srcmenu.value = ~modules.values.asArray.sort.indexOf(~cursrc);
 		~destmenu.value = ~modules.values.asArray.sort.indexOf(~curdest);
-		~paramsmenu.value = ~params.values.asArray.sort.indexOf(~curparam);
+		~curparams = ~getparams.value(~cursrc).debug("% params".format(~cursrc));
+		// ~paramsmenu.value = ~curparams.asArray.sort.indexOf(~curparam) ? ~params.asArray.sort.indexOf(~curparam ? \freq);
+		~paramsmenu.items = ~curparams.asArray.sort ? ~params.asArray.sort;
+		~paramsmenu.value = ~curparams.asArray.sort.indexOf(~curparam) ? 0;
 	};
 };
+
 ~win.view.keyUpAction =  {|doc, char, mod, unicode, keycode, key|
 	if(~keysdown.indexOf(key).isNil.not) {
 		~keysdown.remove(key);
@@ -138,6 +172,8 @@
 	~valuextext.string = "value x:\t" + ~curvaluex;
 	~valueytext.string = "value y:\t" + ~curvaluey;
 	// ~inputprompt.string = "%.set('%', %)".format(~cursrc, ~curparam, x);
+
+	// ~paramsmenu.value = (~paramsmenu.value + ~curvaluey).mod( ~paramsmenu.items.size );
 };
 
 ~inputprompt.stringColor = Color.gray;
@@ -148,7 +184,3 @@
 ~valuextext.stringColor = Color.gray;
 ~valueytext.stringColor = Color.gray;
 )
-"0x27".hexToInt
-27.asHexString.hexToInt
-0x27
-~win = nil

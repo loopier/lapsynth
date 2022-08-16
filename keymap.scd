@@ -5,6 +5,7 @@
 ~params = Dictionary();
 
 ~cmds.put(\16777219, {~reset.value}); // backspace
+~cmds.put(\16777220, {~patch.value}); // return
 
 // oscillators
 ~modules.put(\81, \osc1);	// q
