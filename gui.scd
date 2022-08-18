@@ -12,9 +12,9 @@
 ~wavetext = StaticText(~win, Rect(4, ~height - (35 * 2),800,50));
 ~valuextext = StaticText(~win, Rect(4, ~height - (35 * 7),800,50));
 ~valueytext = StaticText(~win, Rect(4, ~height - (35 * 6),800,50));
-~srcmenu = EZPopUpMenu(~win, Rect(0, 0, 230, 22), "src", ~modules.values.asArray.sort);
-~destmenu= EZPopUpMenu(~win, Rect(0, 22, 230, 22), "dest", ~modules.values.asArray.sort);
-~paramsmenu= EZPopUpMenu(~win, Rect(0, 44, 230, 22), "params", ~params.values.asArray.sort); //.enabled_(false);
+~srcmenu = EZPopUpMenu(~win, Rect(0, 0, 230, 22), "src", nil);// ~modules.values.asArray.sort);
+~destmenu= EZPopUpMenu(~win, Rect(0, 22, 230, 22), "dest", nil);// ~modules.values.asArray.sort);
+~paramsmenu= EZPopUpMenu(~win, Rect(0, 44, 230, 22), "params", nil);// ~params.values.asArray.sort); //.enabled_(false);
 ~keysdown = List();
 ~keycodes = Dictionary(); // easy map input to keydict
 
@@ -79,29 +79,13 @@
 		var patch = List();
 		~keycodes.put(key, char.asSymbol);
 		~keysdown.add(key);
-		// ~inputprompt.string = ~keysdown.debug(char);
-		// ~inputprompt.string =
-		// 	~modules[keycode.asSymbol] ?
-		// 	~params[keycode.asSymbol] ?
-		// 	~waves[keycode.asSymbol];
+
 		~keysdown.do{ |k,i|
 			k = k.asSymbol;
-			// patch.add( ~modules[k] ? ~params[k] ? ~waves[k] );
-
-			// case
-			// { ~cmds.includesKey(k) } { ~cmds[k].value }
-			// { ~modules.includesKey(k) } {
-			// 	if(~keysdown.size == 1) {
-			// 		~cursrc = ~modules[k];
-			// 	};
-			// 	if(~keysdown.size == 2) { ~curdest = ~modules[k] };
-			// }
-			// { ~params.includesKey(k) } { ~curparam = ~params[k] }
-			// { ~waves.includesKey(k) } { ~curwave = ~waves[k] }
 
 			if (~keysdown.size == 1) {
 				case
-				{ ~cmds.includesKey(k) } 	{ ~cmds[k].value }
+				{ ~cmds.includesKey(k) } 	{ ~cmds[k].value.debug(~cmds[k]) }
 				{ ~modules.includesKey(k) } { ~cursrc = ~modules[k] }
 				{ ~params.includesKey(k) }	{ ~curparam = ~params[k] }
 				{ ~waves.includesKey(k) } 	{ ~curwave = ~waves[k] }
@@ -109,9 +93,10 @@
 
 			if (~keysdown.size == 2) {
 				case
-				{ ~modules.includesKey(k) }	{
+				{ ~modules.includesKey(k) && ~modules[k] != ~cursrc }	{
 					~curdest = ~modules[k];
 					// patch src to dest
+					~patch.value(~cursrc, ~curdest, ~curparam);
 				}
 				{ ~params.includesKey(k) }	{
 					~curparam = ~params[k];
@@ -134,12 +119,28 @@
 		~desttext.string = "dest:\t" + ~curdest;
 		~paramtext.string = "param:\t" + ~curparam;
 		~wavetext.string = "wave:\t" + ~curwave;
+		~srcmenu.items = ~modules.values.asArray.sort;
 		~srcmenu.value = ~modules.values.asArray.sort.indexOf(~cursrc);
+		~destmenu.items = ~modules.values.asArray.sort;
 		~destmenu.value = ~modules.values.asArray.sort.indexOf(~curdest);
-		~curparams = ~getparams.value(~cursrc).debug("% params".format(~cursrc));
-		// ~paramsmenu.value = ~curparams.asArray.sort.indexOf(~curparam) ? ~params.asArray.sort.indexOf(~curparam ? \freq);
+		~curparams = ~getparams.value(~cursrc);//.debug("% params".format(~cursrc));
 		~paramsmenu.items = ~curparams.asArray.sort ? ~params.asArray.sort;
 		~paramsmenu.value = ~curparams.asArray.sort.indexOf(~curparam) ? 0;
+
+
+		"".debug;
+		~srctext.string.debug();
+		~desttext.string.debug();
+		~paramtext.string.debug();
+		~wavetext.string.debug();
+		// ~srcmenu.items.debug("srcmenu");
+		// ~srcmenu.value.debug("srcmenu");
+		// ~destmenu.items.debug("destmenu");
+		// ~destmenu.value.debug("destmenu");
+		~curparams.debug("curparams");
+		~curparam.debug("curparam");
+		// ~paramsmenu.items.debug("paramsmenu");
+		// ~paramsmenu.value.debug("paramsmenu");
 	};
 };
 

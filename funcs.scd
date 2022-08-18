@@ -9,7 +9,11 @@
 };
 
 ~patch = { |src, dest, param|
-	~inputprompt.string = "Ndef('%').set('%', Ndef('%'))".format(~cursrc, ~curparam, ~curdest);
+	if( src.isNil ) { "src is not defined".warn; ^nil };
+	if( dest.isNil ) { "dest is not defined".warn; ^nil };
+	if( param.isNil ) { "param is not defined".warn; ^nil };
+	// ~inputprompt.string = "Ndef('%').set('%', Ndef('%'))".format(~curdest, ~curparam, ~cursrc).debug("compile string");
+	~inputprompt.string = "Ndef('%').set('%', Ndef('%'))".format(dest, param, src).debug("compile string");
 };
 
 // return the keys of the controls for the given Ndef
