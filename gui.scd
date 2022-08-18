@@ -1,4 +1,5 @@
 (
+s.boot.scope;
 ~width = 800;
 ~height = 800;
 ~rows = 4;
@@ -75,40 +76,48 @@
 // keyboard events
 
 ~win.view.keyDownAction = {|doc, char, mod, unicode, keycode, key|
+	"".debug;
 	if(~keysdown.indexOf(keycode).isNil) {
 		var patch = List();
 		~keycodes.put(key, char.asSymbol);
 		~keysdown.add(key);
 
-		~keysdown.do{ |k,i|
-			k = k.asSymbol;
+		if (~keysdown.size == 1) {
+			var k = ~keysdown[0].asSymbol;
+			case
+			{ ~cmds.includesKey(k) } 	{ ~cmds[k].value.debug(~cmds[k]) }
+			{ ~modules.includesKey(k) } { ~cursrc = ~modules[k] }
+			{ ~params.includesKey(k) }	{ ~curparam = ~params[k] }
+			{ ~waves.includesKey(k) } 	{ ~curwave = ~waves[k] }
+		};
 
-			if (~keysdown.size == 1) {
-				case
-				{ ~cmds.includesKey(k) } 	{ ~cmds[k].value.debug(~cmds[k]) }
-				{ ~modules.includesKey(k) } { ~cursrc = ~modules[k] }
-				{ ~params.includesKey(k) }	{ ~curparam = ~params[k] }
-				{ ~waves.includesKey(k) } 	{ ~curwave = ~waves[k] }
-			};
-
-			if (~keysdown.size == 2) {
-				case
-				{ ~modules.includesKey(k) && ~modules[k] != ~cursrc }	{
-					~curdest = ~modules[k];
+		if (~keysdown.size == 2) {
+			var k = ~keysdown[1].asSymbol;
+			case
+			{ (~modules.includesKey(k)) }	{
+				~cursrc = ~modules[~keysdown[0].asSymbol];
+				~curdest = ~modules[k];
+				if (~curdest == \mixer) {
+					~play.value(~cursrc);
+				} {
 					// patch src to dest
 					~patch.value(~cursrc, ~curdest, ~curparam);
 				}
-				{ ~params.includesKey(k) }	{
-					~curparam = ~params[k];
-					// set param for src ndef
-				}
-				{ ~waves.includesKey(k) } 	{
-					~curwave = ~waves[k];
-					// set source for src ndef
-					~setsrc.value( ~cursrc, ~curwave );
-					// ~getparams.value(~cursrc);
-				}
-			};
+			}
+			{ ~params.includesKey(k) }	{
+				~curparam = ~params[k];
+				// set param for src ndef
+			}
+			{ ~waves.includesKey(k) } 	{
+				~curwave = ~waves[k];
+				// set source for src ndef
+				~setsrc.value( ~cursrc, ~curwave );
+				// ~getparams.value(~cursrc);
+			}
+		};
+
+		if (~keysdown.size == 3) {
+			~unpatch.value(~cursrc, ~curparam);
 		};
 		// ~inputprompt.string = patch;
 		// ~inputprompt.string = [~cursrc, ~curparam, ~curwave];
@@ -128,7 +137,6 @@
 		~paramsmenu.value = ~curparams.asArray.sort.indexOf(~curparam) ? 0;
 
 
-		"".debug;
 		~srctext.string.debug();
 		~desttext.string.debug();
 		~paramtext.string.debug();
@@ -176,6 +184,8 @@
 
 	// ~paramsmenu.value = (~paramsmenu.value + ~curvaluey).mod( ~paramsmenu.items.size );
 };
+
+~win.onClose = { s.quit };
 
 ~inputprompt.stringColor = Color.gray;
 ~srctext.stringColor = Color.gray;
